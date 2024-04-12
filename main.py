@@ -9,6 +9,7 @@ class User(BaseModel):
     first_name: str
     last_name: str
     age: int
+    phone_number: Union[str, None] = None
 
 users = [{"first_name": "Binh", "last_name": "Nguyen", "age": 18}]
 
@@ -28,13 +29,17 @@ async def get_user(id: int):
 async def get_current_user():
     return {"message": "Hello world"}
 
-@app.post("/")
-def post():
-    return {"message": "Post api" }
+@app.post("/users")
+def create_user(user: User):
+    user_dict = user.dict()
+    if user.phone_number:
+        phone_number_with_prefix = "(+84)" + user.phone_number[1:]
+        user_dict.update({"phone_number_with_prefix": phone_number_with_prefix})
+    return user_dict
 
 @app.put("/users/{id}")
 async def update_user(id: int, user: User):
-    return {"id": id, "user": {"first_name": user.first_name, "last_name": "Nguyen", "age": 18}, "message": "Hello world"}
+    return {"id": id, "user": {"first_name": user.first_name, **user.dict()}, "message": "Hello world"}
 
 class FoodEnum(str, Enum):
     fruits = "fruits"
