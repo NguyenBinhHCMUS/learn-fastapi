@@ -13,6 +13,10 @@ class User(BaseModel):
     phone_number: Union[str, None] = None
 
 
+class Profile(BaseModel):
+    address: str
+
+
 users = [{"first_name": "Binh", "last_name": "Nguyen", "age": 18}]
 
 
@@ -49,7 +53,7 @@ def create_user(user: User):
 
 
 @app.put("/users/{id}")
-async def update_user(id: int, user: User):
+async def update_user(*, id: int = Path(..., title="The ID the user to update"), user: User, profile: Profile):
     return {"id": id, "user": {"first_name": user.first_name, **user.dict()}, "message": "Hello world"}
 
 
