@@ -6,6 +6,14 @@ from pydantic import BaseModel, Field
 app = FastAPI()
 
 
+class Image(BaseModel):
+    url: str = Field(...,
+                     pattern="^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)")
+    name: str
+    type: str
+    size: float
+
+
 class User(BaseModel):
     first_name: str
     last_name: str
@@ -18,6 +26,8 @@ class Profile(BaseModel):
     description: Union[str, None] = Field(None, title="The description of the profile", max_length=256)
     age: int = Field(..., gt=0, description="The age must be greater than zero.")
     tax: Union[float, None] = None
+    hobbies: list[str] = []
+    avatar: Union[Image, None] = None
 
 
 users = [{"first_name": "Binh", "last_name": "Nguyen", "age": 18}]
