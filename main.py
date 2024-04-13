@@ -14,11 +14,38 @@ class Image(BaseModel):
     size: float
 
 
+class Role(str, Enum):
+    shop = "shop"
+    client = "client"
+    admin = "admin"
+    shipper = "shipper"
+
+
+class Status(str, Enum):
+    active = "active"
+    in_active = "in_active"
+    hide = "hide"
+
+
 class User(BaseModel):
+    user_name: str = Field(..., max_length=64, example="binhbong")
+    password: str
     first_name: str
     last_name: str
-    age: int
     phone_number: Union[str, None] = None
+    roles: list[Role] = []
+    status: Status = Status.active
+
+    # class Config:
+    #     schema_extra = {
+    #         "example": {
+    #             "user_name": "binhbong",
+    #             "password": "hashpassword",
+    #             "first_name": "Binh",
+    #             "last_name": "Bong",
+    #             "phone_number": "012345678"
+    #         }
+    #     }
 
 
 class Profile(BaseModel):
@@ -57,7 +84,36 @@ async def get_current_user():
 
 
 @app.post("/users")
-def create_user(user: User):
+def create_user(user: User = Body(...,
+                                  openapi_examples={
+                                      "shop": {
+                                          "user_name": "binhbong",
+                                          "password": "hashpassword",
+                                          "first_name": "Binh",
+                                          "last_name": "Bong",
+                                          "phone_number": "012345678",
+                                          "roles": [Role.shop],
+                                          "status": Status.active
+                                      },
+                                      "client": {
+                                          "user_name": "binhbong",
+                                          "password": "hashpassword",
+                                          "first_name": "Binh",
+                                          "last_name": "Bong",
+                                          "phone_number": "012345678",
+                                          "roles": [Role.client],
+                                          "status": Status.active
+                                      },
+                                      "admin": {
+                                          "user_name": "binhbong",
+                                          "password": "hashpassword",
+                                          "first_name": "Binh",
+                                          "last_name": "Bong",
+                                          "phone_number": "012345678",
+                                          "roles": [Role.admin],
+                                          "status": Status.active
+                                      }
+                                  })):
     user_dict = user.dict()
     if user.phone_number:
         phone_number_with_prefix = "(+84)" + user.phone_number[1:]
@@ -66,7 +122,7 @@ def create_user(user: User):
 
 
 @app.put("/users/{id}")
-async def update_user(*, id: int = Path(..., title="The ID the user to update"), user: User,
+async def update_user(*, id: int = Path(..., title="The ID the user to update"), user: User = Body(..., embed=True),
                       profile: Profile = Body(..., embed=True)):
     return {"id": id, "user": {"first_name": user.first_name, **user.dict()}, "message": "Hello world"}
 
@@ -80,6 +136,3 @@ class FoodEnum(str, Enum):
 @app.get("/foods/{food_name}")
 def get_food(food_name: FoodEnum):
     return {"food_name": food_name}
-
-
-users = [{}]
