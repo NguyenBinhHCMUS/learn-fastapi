@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Path
 from enum import Enum
 from typing import Union
 from pydantic import BaseModel
@@ -30,8 +30,8 @@ async def get_users(keyword: str = Query(None, min_length=0, max_length=256, tit
 
 
 @app.get("/users/{id}")
-async def get_user(id: int):
-    return {"message": "Hello world" + " " + id}
+async def get_user(id: int = Path(..., title="The ID of the user to get", ge=1, le=100)):
+    return {"message": "Hello world" + " "}
 
 
 @app.get("/users/me")
