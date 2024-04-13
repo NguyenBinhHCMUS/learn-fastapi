@@ -1,7 +1,7 @@
-from fastapi import FastAPI, Query, Path
+from fastapi import FastAPI, Query, Path, Body
 from enum import Enum
 from typing import Union
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 app = FastAPI()
 
@@ -15,6 +15,9 @@ class User(BaseModel):
 
 class Profile(BaseModel):
     address: str
+    description: Union[str, None] = Field(None, title="The description of the profile", max_length=256)
+    age: int = Field(..., gt=0, description="The age must be greater than zero.")
+    tax: Union[float, None] = None
 
 
 users = [{"first_name": "Binh", "last_name": "Nguyen", "age": 18}]
@@ -53,7 +56,8 @@ def create_user(user: User):
 
 
 @app.put("/users/{id}")
-async def update_user(*, id: int = Path(..., title="The ID the user to update"), user: User, profile: Profile):
+async def update_user(*, id: int = Path(..., title="The ID the user to update"), user: User,
+                      profile: Profile = Body(..., embed=True)):
     return {"id": id, "user": {"first_name": user.first_name, **user.dict()}, "message": "Hello world"}
 
 
