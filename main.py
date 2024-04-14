@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query, Path, Body
+from fastapi import FastAPI, Query, Path, Body, Cookie, Header
 from enum import Enum
 from typing import Union, Annotated
 from pydantic import BaseModel, Field
@@ -158,3 +158,12 @@ async def read_items(
         "start_process": start_process,
         "duration": duration,
     }
+
+
+@app.get("/items")
+async def read_items_with_cookie(cookie_id: Annotated[Union[str, None], Cookie()] = None,
+                                 accept_encoding: Annotated[Union[str, None], Header()] = None,
+                                 sec_ch_ua: Annotated[Union[str, None], Header()] = None,
+                                 user_agent: Annotated[Union[str, None], Header()] = None):
+    return {"Cookie": cookie_id, "Accept-Encoding": accept_encoding, "Sec-Ch-Ua": sec_ch_ua,
+            "User-Agent": user_agent}

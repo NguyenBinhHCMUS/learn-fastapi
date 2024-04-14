@@ -34,3 +34,7 @@ ReDoc UI: http://127.0.0.1:8000/redoc
 
 Python cũng có một tính năng cho phép đặt metadata bổ sung trong những gợi ý kiểu dữ liệu này bằng cách sử dụng
 Annotated.
+
+## 12. Cookie and Header Parameters¶
+
+You can define Cookie parameters the same way you define Query and Path parameters.
