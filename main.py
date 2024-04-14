@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Query, Path, Body, Cookie, Header
 from enum import Enum
-from typing import Union, Annotated
-from pydantic import BaseModel, Field
+from typing import Union, Annotated, Any
+from pydantic import BaseModel, Field, EmailStr
 from datetime import datetime, time, timedelta
 from uuid import UUID
 
@@ -50,7 +50,17 @@ class User(BaseModel):
     #     }
 
 
+class UserOut(BaseModel):
+    user_name: str = Field(..., max_length=64, example="binhbong")
+    first_name: str
+    last_name: str
+    phone_number: Union[str, None] = None
+    roles: list[Role] = []
+    status: Status = Status.active
+
+
 class Profile(BaseModel):
+    email: EmailStr
     address: str
     description: Union[str, None] = Field(None, title="The description of the profile", max_length=256)
     age: int = Field(..., gt=0, description="The age must be greater than zero.")
@@ -67,12 +77,34 @@ async def root():
     return {"message": "Hello world"}
 
 
-@app.get("/users")
+@app.get("/users", response_model=list[User], response_model_exclude={"password"})
 async def get_users(keyword: str = Query(None, min_length=0, max_length=256, title="Search by keyword"),
                     page: int = 0,
                     limit: int = 10, sort: Union[str, None] = None
-                    ):
-    return {"message": "Hello world"}
+                    ) -> Any:
+    return [{
+        "user_name": "binhbong",
+        "password": "hashpassword",
+        "first_name": "Binh",
+        "last_name": "Bong",
+        "phone_number": "012345678",
+        "roles": [Role.shop],
+        "status": Status.active
+    }]
+
+
+@app.get("/users/me", response_model=User, response_model_exclude={"password"})
+async def get_current_user() -> Any:
+    return {
+        "id": 1,
+        "user_name": "binhbong",
+        "password": "hashpassword",
+        "first_name": "Binh",
+        "last_name": "Bong",
+        "phone_number": "012345678",
+        "roles": [Role.shop],
+        "status": Status.active
+    }
 
 
 @app.get("/users/{id}")
@@ -80,12 +112,7 @@ async def get_user(id: int = Path(..., title="The ID of the user to get", ge=1, 
     return {"message": "Hello world" + " "}
 
 
-@app.get("/users/me")
-async def get_current_user():
-    return {"message": "Hello world"}
-
-
-@app.post("/users")
+@app.post("/users", response_model=UserOut)
 def create_user(user: User = Body(...,
                                   openapi_examples={
                                       "shop": {
@@ -115,7 +142,7 @@ def create_user(user: User = Body(...,
                                           "roles": [Role.admin],
                                           "status": Status.active
                                       }
-                                  })):
+                                  })) -> Any:
     user_dict = user.dict()
     if user.phone_number:
         phone_number_with_prefix = "(+84)" + user.phone_number[1:]
