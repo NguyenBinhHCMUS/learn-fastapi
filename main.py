@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query, Path, Body, Cookie, Header
+from fastapi import FastAPI, Query, Path, Body, Cookie, Header, status
 from enum import Enum
 from typing import Union, Annotated, Any
 from pydantic import BaseModel, Field, EmailStr
@@ -110,7 +110,7 @@ async def root():
     return {"message": "Hello world"}
 
 
-@app.get("/users", response_model=list[User], response_model_exclude={"password"})
+@app.get("/users", response_model=list[User], response_model_exclude={"password"}, status_code=status.HTTP_200_OK)
 async def get_users(keyword: str = Query(None, min_length=0, max_length=256, title="Search by keyword"),
                     page: int = 0,
                     limit: int = 10, sort: Union[str, None] = None
@@ -145,7 +145,7 @@ async def get_user(id: int = Path(..., title="The ID of the user to get", ge=1, 
     return {"message": "Hello world" + " "}
 
 
-@app.post("/users", response_model=UserOut)
+@app.post("/users", response_model=UserOut, status_code=201)
 def create_user(user: UserIn = Body(...,
                                     openapi_examples={
                                         "shop": {
