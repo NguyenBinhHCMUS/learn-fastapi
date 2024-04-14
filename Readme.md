@@ -31,3 +31,6 @@ uvicorn main:app --reload
 Swagger UI: http://127.0.0.1:8000/docs
 
 ReDoc UI: http://127.0.0.1:8000/redoc
+
+Python cũng có một tính năng cho phép đặt metadata bổ sung trong những gợi ý kiểu dữ liệu này bằng cách sử dụng
+Annotated.
