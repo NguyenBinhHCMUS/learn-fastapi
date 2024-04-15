@@ -137,3 +137,12 @@ There are some cases where you might need to convert a data type (like a Pydanti
 JSON (like a dict, list, etc).
 
 Using the jsonable_encoder
+
+## 22. Body - Updates
+
+### Update replacing with PUT
+
+To update an item you can use the HTTP PUT operation.
+
+You can use the jsonable_encoder to convert the input data to data that can be stored as JSON (e.g. with a NoSQL
+database). For example, converting datetime to str.
