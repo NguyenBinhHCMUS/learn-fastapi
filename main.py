@@ -2,6 +2,7 @@ from fastapi import FastAPI, Query, Path, Body, Cookie, Header, status, Form, Fi
 from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.encoders import jsonable_encoder
 
 from enum import Enum
 from typing import Union, Annotated, Any
@@ -225,9 +226,11 @@ def create_user(user: UserIn = Body(...,
     return user_saved
 
 
-@app.put("/users/{id}")
+@app.put("/users/{id}", tags=["users"])
 async def update_user(*, id: int = Path(..., title="The ID the user to update"), user: User = Body(..., embed=True),
                       profile: Profile = Body(..., embed=True)):
+    json_compatible_item_data = jsonable_encoder(user)
+    print(json_compatible_item_data)
     return {"id": id, "user": {"first_name": user.first_name, **user.dict()}, "message": "Hello world"}
 
 

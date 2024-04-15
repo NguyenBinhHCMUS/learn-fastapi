@@ -130,3 +130,10 @@ This is similar to the 200 HTTP status codes (from 200 to 299). Those "200" stat
 success" in the request.
 
 The status codes in the 400 range mean that there was an error from the client.
+
+## 21. JSON Compatible Encoder
+
+There are some cases where you might need to convert a data type (like a Pydantic model) to something compatible with
+JSON (like a dict, list, etc).
+
+Using the jsonable_encoder
