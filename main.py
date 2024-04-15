@@ -141,11 +141,20 @@ async def root():
     return {"message": "Hello world"}
 
 
-@app.get("/users", response_model=list[User], response_model_exclude={"password"}, status_code=status.HTTP_200_OK)
+@app.get("/users", response_model=list[User], response_model_exclude={"password"}, status_code=status.HTTP_200_OK,
+         tags=["users"])
 async def get_users(keyword: str = Query(None, min_length=0, max_length=256, title="Search by keyword"),
                     page: int = 0,
                     limit: int = 10, sort: Union[str, None] = None
                     ) -> Any:
+    """
+    Get all users
+    - keyword: text to search
+    - page:
+    - limit:
+    - sort:
+    - return: [Users]
+    """
     return [{
         "user_name": "binhbong",
         "password": "hashpassword",
