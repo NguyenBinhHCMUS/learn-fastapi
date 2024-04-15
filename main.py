@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query, Path, Body, Cookie, Header, status
+from fastapi import FastAPI, Query, Path, Body, Cookie, Header, status, Form, File, UploadFile
 from enum import Enum
 from typing import Union, Annotated, Any
 from pydantic import BaseModel, Field, EmailStr
@@ -234,3 +234,51 @@ async def read_items_with_cookie(cookie_id: Annotated[Union[str, None], Cookie()
 @app.get("/keyword-weights/", response_model=dict[str, float])
 async def read_keyword_weights():
     return {"foo": 2.3, "bar": 3.4}
+
+
+@app.post("/file")
+async def create_file(file: Annotated[bytes, File(description="A file read as bytes")]):
+    if not file:
+        return {"message": "No file sent"}
+    else:
+        return {"file_size": len(file)}
+
+
+@app.post("/file/form-file")
+async def create_file_and_form(
+        file: Annotated[bytes, File(description="A file read as bytes")],
+        fileb: Annotated[UploadFile, File(description="A file read as UploadFile")],
+        token: Annotated[str, Form()]
+):
+    if not file:
+        return {"message": "No file sent"}
+    else:
+        return {
+            "file_size": len(file),
+            "token": token,
+            "fileb_content_type": fileb.content_type,
+        }
+
+
+@app.post("/file/multiple")
+async def create_files(files: Annotated[list[bytes], File(description="Multiple files as bytes")]):
+    if not files:
+        return {"message": "No file sent"}
+    else:
+        return {"file_size": [len(file) for file in files]}
+
+
+@app.post("/upload")
+async def upload(file: Annotated[UploadFile, File(description="A file read as UploadFile")]):
+    if not file:
+        return {"message": "No upload file sent"}
+    else:
+        return {"filename": file.filename}
+
+
+@app.post("/upload/multiple")
+async def upload_multiple(files: Annotated[list[UploadFile], File(description="Multiple files as UploadFile")]):
+    if not files:
+        return {"message": "No upload file sent"}
+    else:
+        return {"filename": [file.filename for file in files]}
