@@ -8,6 +8,8 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 # Routers
 from routes.users import router as UserRouter
 from routes.uploads import router as UploadRouter
+from routes.profiles import router as ProfileRouter
+from routes.products import router as ProductRouter
 
 config = dotenv_values(".env")
 
@@ -56,3 +58,5 @@ async def read_root():
 
 app.include_router(UploadRouter, tags=["Uploads"], prefix="/uploads")
 app.include_router(UserRouter, tags=["Users"], prefix="/users")
+app.include_router(ProfileRouter, tags=["Profiles"], prefix="/profiles")
+app.include_router(ProductRouter, tags=["Products"], prefix="/products")
