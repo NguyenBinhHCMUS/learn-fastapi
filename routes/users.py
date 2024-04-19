@@ -1,9 +1,10 @@
-from typing import Union
+from typing import Union, Annotated
 
-from fastapi import APIRouter, status, Query, Path, Body
+from fastapi import APIRouter, status, Query, Path, Body, Depends
 from fastapi.encoders import jsonable_encoder
 from typing_extensions import Any
 
+from dependencies import common_parameters, CommonQueryParams, verify_key, verify_token
 from models import User, RoleEnum, StatusEnum
 from models.profile import Profile
 from schemas import UserIn, UserOut
@@ -12,15 +13,19 @@ from utils.helpers import fake_save_user
 router = APIRouter()
 
 
-@router.get("", response_model=list[User], response_model_exclude={"password"}, status_code=status.HTTP_200_OK)
-async def get_users(keyword: str = Query(None, min_length=0, max_length=256, title="Search by keyword"),
-                    page: int = 0,
-                    limit: int = 10, sort: Union[str, None] = None
-                    ) -> Any:
+@router.get("",
+            response_model=list[User],
+            response_model_exclude={"password"},
+            status_code=status.HTTP_200_OK,
+            dependencies=[Depends(verify_token), Depends(verify_key)])
+async def get_users(
+        commons: Annotated[CommonQueryParams, Depends()],
+        sort: Union[str, None] = None
+) -> Any:
     """
     Get all users
     - keyword: text to search
-    - page:
+    - skip:
     - limit:
     - sort:
     - return: [Users]
