@@ -7,3 +7,7 @@ python-multipart
 pymongo
 pydantic_settings
 python-dotenv
+python-jose[cryptography]
+passlib[bcrypt]
+httpx
+pytest

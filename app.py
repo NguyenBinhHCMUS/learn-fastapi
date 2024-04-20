@@ -3,8 +3,12 @@ from fastapi import FastAPI, Request
 from pymongo import MongoClient
 from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from helpers.exception_handler import UnicornException, unicorn_exception_handler, http_exception_handler, \
+    validation_exception_handler
+from middlewares import add_process_time_header, ProcessTimeMiddleware
 # Routers
 from routes.users import router as UserRouter
 from routes.uploads import router as UploadRouter
@@ -15,28 +19,10 @@ config = dotenv_values(".env")
 
 app = FastAPI()
 
-
-class UnicornException(Exception):
-    def __init__(self, name: str):
-        self.name = name
-
-
-@app.exception_handler(UnicornException)
-async def unicorn_exception_handler(request: Request, exc: UnicornException):
-    return JSONResponse(
-        status_code=418,
-        content={"message": f"Oops! {exc.name} did something. There goes a rainbow..."},
-    )
-
-
-@app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(request, exc):
-    return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
-
-
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    return PlainTextResponse(str(exc), status_code=400)
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+]
 
 
 @app.on_event("startup")
@@ -49,6 +35,18 @@ def startup_db_client():
 @app.on_event("shutdown")
 def shutdown_db_client():
     app.mongodb_client.close()
+
+
+app.add_exception_handler(UnicornException, http_exception_handler)
+
+# Middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"], )
+app.add_middleware(ProcessTimeMiddleware, some_attribute="some_attribute_here_if_needed")
 
 
 @app.get("/", tags=["Root"])
